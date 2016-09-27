@@ -55,6 +55,12 @@ if [[ ! -e bin/golint ]]; then
     task_end
 fi
 
+if [[ ! -e src/gopkg.in/yaml.v2 ]]; then
+    task "Fetching go-yaml.v2..."
+    go get -t gopkg.in/yaml.v2
+    task_end
+fi
+
 if [[ -e src/github.com/ikeydoherty/ypkg-tools ]]; then
     task "Removing existing build tree..."
 	rm src/github.com/ikeydoherty/ypkg-tools -r
@@ -69,8 +75,8 @@ fi
 
 task "Creating new build tree..."
 mkdir -p src/github.com/ikeydoherty/ypkg-tools
-ln -s "$(pwd)/ylib" src/github.com/ikeydoherty/ypkg-tools/.
-ln -s "$(pwd)/ytools" src/github.com/ikeydoherty/ypkg-tools/.
+cp -R "$(pwd)/ylib" src/github.com/ikeydoherty/ypkg-tools/.
+cp -R "$(pwd)/ytools" src/github.com/ikeydoherty/ypkg-tools/.
 task_end
 stage_end "Setup stage finished:"
 
@@ -82,16 +88,16 @@ task_end
 stage_end "Build stage finished:"
 
 stage "Vet"
-go vet ./...
+go vet github.com/ikeydoherty/ypkg-tools/...
 stage_end "Vetting stage finished:"
 
 stage "Test"
-go test ./...
+go test github.com/ikeydoherty/ypkg-tools/...
 stage_end "Testing stage finished:"
 
 stage "Lint"
 (( total += 1 ))
-golint -set_exit_status ./...
+golint -set_exit_status github.com/ikeydoherty/ypkg-tools/...
 if [ $? == 0 ]; then
     (( pass += 1 ))
 fi
